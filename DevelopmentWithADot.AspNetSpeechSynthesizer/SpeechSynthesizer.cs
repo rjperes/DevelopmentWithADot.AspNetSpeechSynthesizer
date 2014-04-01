@@ -5,21 +5,26 @@ using System.IO;
 using System.Speech.Synthesis;
 using System.Threading;
 using System.Web.UI;
-using System.Web.UI.WebControls;
+using System.Web.UI.HtmlControls;
 
 namespace DevelopmentWithADot.AspNetSpeechSynthesizer
 {
-	public class SpeechSyntesizer : WebControl, ICallbackEventHandler
+	[ConstructorNeedsTag(false)]
+	public class SpeechSynthesizer : HtmlGenericControl, ICallbackEventHandler
 	{
-		private readonly SpeechSynthesizer synth = new SpeechSynthesizer();
+		private readonly System.Speech.Synthesis.SpeechSynthesizer synth = new System.Speech.Synthesis.SpeechSynthesizer();
 
-		public SpeechSyntesizer() : base("audio")
+		public SpeechSynthesizer() : base("audio")
 		{
 			this.Age = VoiceAge.NotSet;
 			this.Gender = VoiceGender.NotSet;
 			this.Culture = CultureInfo.CurrentCulture;
+			this.VoiceName = String.Empty;
 			this.Ssml = false;
 		}
+
+		[DefaultValue("")]
+		public String VoiceName { get; set; }
 
 		[DefaultValue(100)]
 		public Int32 Volume { get; set; }
@@ -45,15 +50,15 @@ namespace DevelopmentWithADot.AspNetSpeechSynthesizer
 
 			var sm = ScriptManager.GetCurrent(this.Page);
 			var reference = this.Page.ClientScript.GetCallbackEventReference(this, "text", String.Format("function(result){{ document.getElementById('{0}').src = result; document.getElementById('{0}').play(); }}", this.ClientID), String.Empty, true);
-			var script = String.Format("\ndocument.getElementById('{0}').speek = function(text){{ {1} }};\n", this.ClientID, reference);
+			var script = String.Format("\ndocument.getElementById('{0}').speak = function(text){{ {1} }};\n", this.ClientID, reference);
 
 			if (sm != null)
 			{
-				this.Page.ClientScript.RegisterStartupScript(this.GetType(), String.Concat("speek", this.ClientID), String.Format("Sys.WebForms.PageRequestManager.getInstance().add_pageLoaded(function() {{ {0} }});\n", script), true);
+				this.Page.ClientScript.RegisterStartupScript(this.GetType(), String.Concat("speak", this.ClientID), String.Format("Sys.WebForms.PageRequestManager.getInstance().add_pageLoaded(function() {{ {0} }});\n", script), true);
 			}
 			else
 			{
-				this.Page.ClientScript.RegisterStartupScript(this.GetType(), String.Concat("speek", this.ClientID), script, true);
+				this.Page.ClientScript.RegisterStartupScript(this.GetType(), String.Concat("speak", this.ClientID), script, true);
 			}
 
 			base.OnInit(e);
@@ -61,6 +66,7 @@ namespace DevelopmentWithADot.AspNetSpeechSynthesizer
 
 		protected override void OnPreRender(EventArgs e)
 		{
+			this.Attributes.Remove("class");
 			this.Attributes.Remove("src");
 			this.Attributes.Remove("preload");
 			this.Attributes.Remove("loop");
@@ -88,8 +94,16 @@ namespace DevelopmentWithADot.AspNetSpeechSynthesizer
 			{
 				this.synth.Rate = this.Rate;
 				this.synth.Volume = this.Volume;
-				this.synth.SelectVoiceByHints(this.Gender, this.Age, 0, this.Culture);
 				this.synth.SetOutputToWaveStream(stream);
+
+				if (String.IsNullOrWhiteSpace(this.VoiceName) == false)
+				{
+					this.synth.SelectVoice(this.VoiceName);
+				}
+				else
+				{
+					this.synth.SelectVoiceByHints(this.Gender, this.Age, 0, this.Culture);					
+				}
 
 				if (this.Ssml == false)
 				{

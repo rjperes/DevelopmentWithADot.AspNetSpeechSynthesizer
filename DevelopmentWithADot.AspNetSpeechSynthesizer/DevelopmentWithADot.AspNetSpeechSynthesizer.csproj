@@ -50,7 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SpeechSyntesizer.cs" />
+    <Compile Include="SpeechSynthesizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\DevelopmentWithADot.snk">

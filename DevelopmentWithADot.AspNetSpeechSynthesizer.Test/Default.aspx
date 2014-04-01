@@ -7,9 +7,9 @@
 	<title></title>
 	<script>
 		
-		function onSpeek(text)
+		function onSpeak(text)
 		{
-			document.getElementById('synthesizer').speek(text);
+			document.getElementById('synthesizer').speak(text);
 		}
 
 	</script>
@@ -17,9 +17,9 @@
 <body>
 	<form runat="server">
 	<div>
-		<web:SpeechSyntesizer runat="server" ID="synthesizer" Age="Adult" Gender="Male" Culture="en-US" Rate="0" Volume="100"/>
+		<web:SpeechSynthesizer runat="server" ID="synthesizer" Age="Adult" Gender="Male" Culture="en-US" Rate="0" Volume="100" />
 		<input type="text" id="text" name="text"/>
-		<input type="button" value="Speek" onclick="onSpeek(this.form.text.value)"/>
+		<input type="button" value="Speak" onclick="onSpeak(this.form.text.value)"/>
 	</div>
 	</form>
 </body>
